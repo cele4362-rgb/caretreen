@@ -1,0 +1,248 @@
+/* =====================================================================
+   CareTreen  -  style.css
+   1. EASY SETTINGS   2. BASE   3. BACKGROUNDS   4. PAGE SHELL
+   5. HEADER          6. LANDING PAGE   7. PRODUCTS (shop / admin)
+   8. IMAGE SLIDER    9. FORMS          10. OVERLAYS / TOAST
+   11. DESKTOP (900px and wider)
+   Mobile styles are the default; section 11 changes them for desktop.
+   ===================================================================== */
+
+/* ---------- 1. EASY SETTINGS (edit these first) ---------- */
+:root{
+  /* Landing page background */
+  --hero-bg:url("images/image2.jpg");   /* image path */
+  --hero-blur:6px;                      /* 0px = sharp */
+  --hero-dim:.2;                        /* white wash over the image, 0 to 1 */
+  /* Products / admin / login pages background */
+  --page-bg:url("images/image.png");
+  --page-blur:0px;
+  --page-dim:.45;
+  /* Colours (header, footer, buttons and back/forward all use these) */
+  --text:#000;
+  --muted:#4a3d4f;
+  --accent:#7a2e5c;                     /* berry buttons */
+  --accent-hover:#91396f;
+  --on-accent:#fff;
+  --danger:#c0392b;
+  --glass:rgba(255,255,255,.65);        /* header + footer */
+  --glass-soft:rgba(255,255,255,.45);   /* pills, back/forward, social icons */
+  --glass-strong:rgba(255,255,255,.85);
+  --border:rgba(0,0,0,.15);
+  --blur:blur(8px);
+  /* Fonts */
+  --font-display:"Fraunces",Georgia,serif;
+  --font-body:"DM Sans",system-ui,sans-serif;
+  /* Layout */
+  --gutter:16px;                        /* space left and right of header / content */
+  --maxw:1280px;                        /* widest the header and content get */
+  --hero-text-top:clamp(24px,9vh,110px);/* how far down the big heading sits */
+  --side-w:clamp(380px,38vw,540px);     /* desktop right panel width */
+}
+
+/* ---------- 2. BASE ---------- */
+*{box-sizing:border-box}
+html{scroll-padding-top:90px}
+body{margin:0;background:#eef3ee;color:var(--text);font:400 16px/1.5 var(--font-body)}
+#app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- 3. BACKGROUNDS ---------- */
+/* One fixed layer behind everything. The landing page swaps its image. */
+body::after{content:"";position:fixed;inset:-24px;z-index:-1;
+  background:linear-gradient(rgba(255,255,255,var(--page-dim)),rgba(255,255,255,var(--page-dim))),var(--page-bg) center/cover no-repeat;
+  filter:blur(var(--page-blur))}
+body.home-page::after{
+  background:linear-gradient(rgba(255,255,255,var(--hero-dim)),rgba(255,255,255,var(--hero-dim))),var(--hero-bg) center/cover no-repeat;
+  filter:blur(var(--hero-blur))}
+
+/* ---------- 4. PAGE SHELL: header, back/forward, content, footer ---------- */
+/* Header, back/forward bar and content share the same width so their edges line up */
+header,.pager,main{width:min(calc(100% - 2*var(--gutter)),var(--maxw));margin-inline:auto}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+/* Header + Back/Forward stay fixed together at the top while the page scrolls */
+.topbar{position:sticky;top:0;z-index:20;pointer-events:none}
+.pager{display:flex;gap:8px;margin-top:12px;pointer-events:none}
+.pager button{pointer-events:auto;background:var(--glass-soft);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:18px;padding:6px 16px;font-size:13px;font-weight:600;color:var(--text);transition:background .2s}
+.pager button:hover{background:var(--glass)}
+footer{flex:none;width:100%;margin:20px 0 0;border-radius:0;padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px));
+  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--text)}
+
+/* ---------- 5. HEADER ---------- */
+/* Mobile: full width, square corners */
+header{position:relative;z-index:2;pointer-events:auto;width:100%;margin:0;padding-top:env(safe-area-inset-top,0px);
+  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-bottom:1px solid var(--border)}
+.bar{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 12px}
+.logo{display:flex;align-items:center;margin-right:auto;color:var(--text);text-decoration:none;white-space:nowrap;font:600 22px var(--font-display)}
+.logo img{display:block;height:30px;width:auto}
+.burger{padding:4px 6px;font-size:24px;line-height:1;color:var(--text)}
+.dnav{display:none}
+.dnav button{padding:4px;font-size:14px;font-weight:500;color:var(--text)}
+.right{display:flex;align-items:center;gap:6px}
+.avatar{display:none;width:34px;height:34px;border-radius:50%;place-items:center;font-size:14px;color:var(--muted);
+  background:var(--glass-soft);border:1px solid var(--border)}
+.pill{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;
+  background:var(--glass-soft);border:1px solid var(--border);transition:background .2s}
+.pill:hover{background:var(--glass)}
+.pill.go{background:var(--accent);color:var(--on-accent);border-color:rgba(0,0,0,.1)}
+.pill.go:hover{background:var(--accent-hover)}
+/* Login dropdown: anchored to the header, so it is never clipped or hidden */
+.menu{position:absolute;top:calc(100% + 8px);right:12px;z-index:30;display:none;flex-direction:column;gap:6px;min-width:170px;padding:8px;
+  background:var(--glass-strong);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.menu.open{display:flex}
+.menu button{padding:9px 12px;border-radius:8px;text-align:left;font-size:14px;color:var(--text);background:rgba(0,0,0,.05)}
+.menu button:hover{background:rgba(0,0,0,.1)}
+/* Mobile sidebar (slides in) */
+.drawer{position:fixed;inset:0;z-index:50;display:flex;visibility:hidden;pointer-events:none;transition:visibility 0s linear .35s}
+.drawer.open{visibility:visible;pointer-events:auto;transition-delay:0s}
+.drawer>div{width:78%;max-width:320px;display:flex;flex-direction:column;gap:10px;padding:calc(14px + env(safe-area-inset-top,0px)) 14px;
+  background:#f6f1f5;transform:translateX(-100%);transition:transform .35s cubic-bezier(.22,.8,.3,1)}
+.drawer.open>div{transform:none}
+.drawer>i{flex:1;background:rgba(0,0,0,0);transition:background .35s ease}
+.drawer.open>i{background:rgba(0,0,0,.4)}
+.drawer .it{padding:11px 14px;border-radius:10px;text-align:left;background:#fff;color:var(--text)}
+
+/* Very small phones: shrink the logo and pills so the header never overflows */
+@media(max-width:360px){
+  .bar{gap:6px;padding-inline:10px}
+  .logo img{height:24px}
+  .right{gap:4px}
+  .pill{padding:6px 9px}
+}
+
+/* ---------- 6. LANDING PAGE ---------- */
+.landing{flex:1;display:flex;flex-direction:column;padding-inline:4px}
+.hero{padding-top:var(--hero-text-top)}
+.hero h1{margin:0 0 20px;max-width:12ch;font:600 clamp(40px,10vw,110px)/1.05 var(--font-display);letter-spacing:-.02em;color:var(--text)}
+.hero p{margin:0;max-width:40ch;font-size:clamp(17px,2.2vw,25px);line-height:1.4;color:var(--text)}
+/* Explore button + social icons sit at the bottom, just above the footer */
+.landing-bottom{margin-top:auto;padding:28px 0 clamp(32px,8vh,72px);display:flex;flex-direction:column-reverse;gap:18px}
+.socials{display:flex;gap:12px;justify-content:center}
+.soc{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;color:var(--text);text-decoration:none;
+  background:var(--glass-soft);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--border);transition:background .2s}
+.soc:hover{background:var(--glass)}
+.soc svg{width:22px;height:22px;fill:currentColor}
+.explore{padding:14px 28px;border-radius:14px;font-size:17px;font-weight:600;color:var(--on-accent);background:var(--accent);
+  border:1px solid rgba(0,0,0,.1);box-shadow:0 4px 12px rgba(122,46,92,.25);transition:background .2s,transform .2s}
+.explore:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.explore:active{transform:translateY(1px)}
+
+/* ---------- 7. PRODUCTS (client shop + admin dashboard) ---------- */
+/* The glass panel grows to fill the space down to the footer */
+.shop{flex:1;display:flex;flex-direction:column;margin-top:16px}
+/* Left list and right preview are two separate glass panels */
+.lhs,.side{background:rgba(255,255,255,.55);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.5);border-radius:24px;box-shadow:0 8px 32px rgba(0,0,0,.05)}
+.lhs{flex:1;padding:16px;scrollbar-width:thin}
+.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.shop h2{margin:0;font:600 28px var(--font-display);color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.card{position:relative;width:100%;padding:10px;border-radius:12px;text-align:left;color:var(--text);
+  background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.3)}
+.card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:#fff}
+.card b{display:block;margin-top:8px;font-size:15px;font-weight:600;color:var(--text)}
+.card span{font-size:14px;font-weight:600;color:var(--accent)}
+.cnt{position:absolute;top:16px;left:16px;padding:2px 8px;border-radius:10px;font-style:normal;font-size:12px;color:#fff;background:rgba(0,0,0,.6)}
+.del{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;font-size:16px;color:var(--text);background:#fff}
+.empty{padding:30px 0;color:var(--muted)}
+/* Right panel (desktop only) */
+.side{display:none}
+.side h3{flex:none;margin:0 0 16px;text-align:center;font:600 22px var(--font-display);color:var(--text);
+  text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:5px}
+.big{display:grid;place-items:center;width:100%;aspect-ratio:1;border-radius:10px;color:var(--muted);background:rgba(255,255,255,.6)}
+/* Big product card (right panel on desktop, popup on mobile) - styled like the list cards, just bigger */
+.pcard{display:flex;flex-direction:column;padding:14px;border-radius:18px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.3)}
+.pcard .slider{border-radius:12px}
+.pcard .slider:has(+.pdesc){border-radius:12px 12px 0 0}   /* square the bottom corners so the black bar attaches */
+.pdesc{padding:10px 12px;border-radius:0 0 12px 12px;font-size:14px;line-height:1.45;color:#fff;background:#111}
+.get{align-self:flex-start;flex:none;margin-top:14px;padding:8px 26px;border-radius:20px;font-weight:600;color:var(--on-accent);background:var(--accent);transition:background .2s}
+.get:hover{background:var(--accent-hover)}
+/* Smooth swap when hovering a different product */
+#sbody{transition:opacity .2s ease,transform .2s ease}
+#sbody.out{opacity:0;transform:translateY(6px)}
+
+/* ---------- 8. IMAGE SLIDER ---------- */
+.slider{position:relative;overflow:hidden;border-radius:10px 10px 0 0;background:rgba(255,255,255,.6)}
+.track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 100%;width:100%;aspect-ratio:1;object-fit:cover;scroll-snap-align:center}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;font-size:22px;line-height:1;color:#fff;background:rgba(0,0,0,.45)}
+.nav.prev{left:8px}
+.nav.next{right:8px}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55)}
+.dots i.on{background:#fff}
+
+/* ---------- 9. FORMS (login + upload) ---------- */
+.auth{width:100%;max-width:420px;margin:24px auto}
+.panelbox{position:relative;padding:22px;border-radius:16px;
+  background:rgba(255,255,255,.65);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.6);box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.x{padding:4px 8px;font-size:22px;line-height:1;color:var(--text)}
+.f{display:block;width:100%;margin:0 0 12px;padding:11px 12px;border-radius:8px;background:rgba(255,255,255,.85);border:1px solid var(--border)}
+textarea.f{min-height:80px;resize:vertical}
+.btn{display:block;margin:6px auto 0;padding:11px 32px;border-radius:12px;font-weight:600;color:var(--on-accent);background:var(--accent);transition:background .2s}
+.btn:hover{background:var(--accent-hover)}
+.err{min-height:18px;margin:0 0 8px;font-size:13px;color:var(--danger)}
+.drop{display:grid;place-items:center;aspect-ratio:1.4;margin-bottom:12px;overflow:hidden;border-radius:10px;cursor:pointer;
+  text-align:center;font-size:14px;color:var(--muted);background:rgba(255,255,255,.7);border:1px dashed rgba(0,0,0,.3)}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.thumbs .drop{grid-column:1/-1;margin:0}
+.th{position:relative;aspect-ratio:1;overflow:hidden;border-radius:8px;background:#fff}
+.th img{width:100%;height:100%;object-fit:cover}
+.th .del{top:4px;right:4px;width:24px;height:24px}
+.th.add{font-size:26px;color:var(--muted);border:1px dashed rgba(0,0,0,.3)}
+
+/* ---------- 10. OVERLAYS / TOAST ---------- */
+.ov{position:fixed;inset:0;z-index:40;overflow:auto;padding:calc(16px + env(safe-area-inset-top,0px)) 20px 24px;background:#f6f1f5;color:var(--text)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:70;transform:translateX(-50%);
+  padding:10px 18px;border-radius:20px;font-size:14px;color:#fff;background:#111}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- 11. DESKTOP (900px and wider) ---------- */
+@media(min-width:900px){
+  :root{--gutter:40px}
+  .burger,.mobOnly{display:none}
+  .dnav{display:flex;gap:28px;position:absolute;left:50%;transform:translateX(-50%)}
+  .avatar{display:grid}
+  .pill{padding:6px 14px;font-size:13px}
+  /* Header becomes a floating rounded bar */
+  .topbar{padding-top:12px}
+  header{width:min(calc(100% - 2*var(--gutter)),var(--maxw));margin:0 auto;padding-top:0;border:1px solid var(--border);border-radius:40px}
+  .bar{gap:14px;min-height:64px;padding:8px 28px}
+  .logo{font-size:24px}
+  .logo img{height:46px}
+  .menu{right:20px}
+  /* Landing */
+  .landing{padding-inline:28px}
+  .landing-bottom{flex-direction:row;align-items:flex-end;justify-content:space-between}
+  .socials{justify-content:flex-start;gap:14px}
+  .soc{width:56px;height:56px}
+  .soc svg{width:26px;height:26px}
+  .explore{font-size:18px}
+  /* Products page: the page itself does not scroll. Only the left list scrolls;
+     the right panel stays fixed. */
+  body.shop-page #app{height:100vh;height:100dvh;overflow:hidden}
+  body.shop-page main{min-height:0}
+  .shop{display:grid;grid-template-columns:minmax(0,1fr) var(--side-w);grid-template-rows:minmax(0,1fr);gap:20px;min-height:0}
+  .lhs{min-height:0;padding:28px 32px;overflow-y:auto}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .card.sel{background:rgba(255,255,255,.8);outline:2px solid var(--accent)}   /* highlight of the product shown on the right */
+  .side{display:flex;flex-direction:column;min-height:0;padding:20px}
+  .side-in{flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+  .side-in::-webkit-scrollbar{display:none}
+  #sbody{flex:1;min-height:0;display:flex;flex-direction:column}
+  .side .pcard{flex:0 1 auto;min-height:0}
+  .side .slider{flex:0 1 auto;aspect-ratio:1;min-height:110px}
+  .side .track{position:absolute;inset:0}
+  .side .track img{height:100%;aspect-ratio:auto}
+  .side .pdesc{flex:none;max-height:7em;overflow-y:auto;scrollbar-width:thin}
+  .side .drop{aspect-ratio:2.4}
+  .side .panelbox{padding:18px}
+}
+@media(min-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
