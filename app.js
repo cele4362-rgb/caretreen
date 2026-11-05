@@ -11,7 +11,10 @@ const CFG={
     whatsapp:"https://wa.me/27814024434"
   }
 };
-document.title=CFG.store;
+const SEO_TITLE=CFG.store+" – Hair and Skin Care Products";   // keep in sync with <title> in index.html
+const TITLES={home:SEO_TITLE,products:"Products | "+CFG.store,login:"Admin login | "+CFG.store,upload:"Upload a product | "+CFG.store};
+const SOCIAL_LABELS={facebook:CFG.store+" on Facebook",tiktok:CFG.store+" on TikTok",whatsapp:"Chat with "+CFG.store+" on WhatsApp"};
+const altOf=(p,i,n)=>n>1?`${p.name} – ${CFG.store} product, photo ${i+1} of ${n}`:`${p.name} – ${CFG.store} product`;
 
 /* ================= DATA LAYER (Supabase). Everything that talks to the database is in this block ================= */
 const sb=window.supabase?window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey):null;
@@ -83,12 +86,12 @@ const imgsOf=p=>p.images||(p.image?[p.image]:[]);
 /* Image slider (used in the side panel and the mobile detail view) */
 function slider(p){
   const l=imgsOf(p);
-  return `<div class="slider"><div class="track">${l.map(s=>`<img src="${s}" alt="${esc(p.name)}">`).join("")}</div>${l.length>1?`<button class="nav prev" data-a="prev" aria-label="Previous image">‹</button><button class="nav next" data-a="next" aria-label="Next image">›</button><div class="dots">${l.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>`:""}</div>`;
+  return `<div class="slider"><div class="track">${l.map((s,i)=>`<img src="${s}" alt="${esc(altOf(p,i,l.length))}">`).join("")}</div>${l.length>1?`<button class="nav prev" data-a="prev" aria-label="Previous image">‹</button><button class="nav next" data-a="next" aria-label="Next image">›</button><div class="dots">${l.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>`:""}</div>`;
 }
 /* Thumbnails shown in the upload form */
 function thumbsHTML(){
   if(!imgs.length)return `<div class="drop" data-a="pick">Tap to add images (up to ${MAX_IMAGES})</div>`;
-  return imgs.map((s,i)=>`<div class="th"><img src="${s}" alt="Image ${i+1}"><button class="del" data-a="rmimg" data-i="${i}" aria-label="Remove image ${i+1}">×</button></div>`).join("")+(imgs.length<MAX_IMAGES?`<button class="th add" data-a="pick" aria-label="Add another image">+</button>`:"");
+  return imgs.map((s,i)=>`<div class="th"><img src="${s}" alt="Selected product photo ${i+1} of ${imgs.length}"><button class="del" data-a="rmimg" data-i="${i}" aria-label="Remove image ${i+1}">×</button></div>`).join("")+(imgs.length<MAX_IMAGES?`<button class="th add" data-a="pick" aria-label="Add another image">+</button>`:"");
 }
 /* Smooth swap of the right-hand panel content */
 let swapT;
@@ -109,8 +112,8 @@ function toast(m){const t=document.createElement("div");t.className="toast";t.te
 function header(admin){
   return `<header><div class="bar">
   <button class="burger" data-a="drawer" aria-label="Open menu">☰</button>
-  <a class="logo" href="#home" aria-label="${esc(CFG.store)}"><img src="images/logo.png" alt="${esc(CFG.store)}" onerror="this.replaceWith(document.createTextNode(this.alt))"></a>
-  <nav class="dnav"><button data-a="products">Products</button><button data-a="about">About us</button><button data-a="contacts">Contacts</button><button data-a="search">Search</button></nav>
+  <a class="logo" href="#home" aria-label="${esc(CFG.store)} home"><img src="images/logo.png" alt="${esc(CFG.store)} logo" data-name="${esc(CFG.store)}" onerror="this.replaceWith(document.createTextNode(this.dataset.name))"></a>
+  <nav class="dnav" aria-label="Main menu"><button data-a="products">Products</button><button data-a="about">About us</button><button data-a="contacts">Contacts</button><button data-a="search">Search</button></nav>
   <div class="right">${admin
     ?`<button class="pill" data-a="products">Dashboard</button><button class="pill go" data-a="logout">Logout</button>`
     :`<button class="pill" data-a="loginmenu">Login</button><button class="pill go" data-a="signup">Sign up</button>
@@ -118,8 +121,8 @@ function header(admin){
   <span class="avatar" aria-hidden="true">${admin?"A":"☺"}</span></div></div></header>`;
 }
 function drawer(){
-  return `<div class="drawer" id="drawer"><div><button class="x" data-a="drawer" aria-label="Close menu" style="align-self:flex-end">✕</button>
-  <button class="it" data-a="products">Products</button><button class="it" data-a="about">About us</button><button class="it" data-a="contacts">Contacts</button><button class="it" data-a="search">Search</button></div><i data-a="drawer"></i></div>`;
+  return `<div class="drawer" id="drawer"><nav aria-label="Mobile menu"><button class="x" data-a="drawer" aria-label="Close menu" style="align-self:flex-end">✕</button>
+  <button class="it" data-a="products">Products</button><button class="it" data-a="about">About us</button><button class="it" data-a="contacts">Contacts</button><button class="it" data-a="search">Search</button></nav><i data-a="drawer"></i></div>`;
 }
 const footer=()=>`<footer>© ${new Date().getFullYear()} ${esc(CFG.store)}. All rights reserved.</footer>`;
 const ICONS={
@@ -128,7 +131,7 @@ const ICONS={
   whatsapp:'<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>'
 };
 
-const socials=()=>`<div class="socials">${Object.keys(ICONS).map(k=>`<a class="soc" href="${esc(CFG.social[k]||"#")}" target="_blank" rel="noopener" aria-label="${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></a>`).join("")}</div>`;
+const socials=()=>`<nav class="socials" aria-label="${esc(CFG.store)} on social media">${Object.keys(ICONS).map(k=>`<a class="soc" href="${esc(CFG.social[k]||"#")}" target="_blank" rel="noopener noreferrer" aria-label="${esc(SOCIAL_LABELS[k]||k)}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></a>`).join("")}</nav>`;
 
 function formHTML(){
   return `<div class="thumbs" id="thumbs">${thumbsHTML()}</div>
@@ -141,7 +144,7 @@ function formHTML(){
 }
 
 function cardHTML(p,admin){
-  return `<div style="position:relative"><button class="card ${sel===p.id?"sel":""}" data-id="${p.id}"><img src="${imgsOf(p)[0]}" alt="${esc(p.name)}">${imgsOf(p).length>1?`<em class="cnt">${imgsOf(p).length} photos</em>`:""}<b>${esc(p.name)}</b><span>R ${esc(p.price)}</span></button>${admin?`<button class="del" data-a="del" data-id="${p.id}" aria-label="Delete ${esc(p.name)}">×</button>`:""}</div>`;
+  return `<div style="position:relative"><button class="card ${sel===p.id?"sel":""}" data-id="${p.id}"><img src="${imgsOf(p)[0]}" alt="${esc(altOf(p,0,1))}">${imgsOf(p).length>1?`<em class="cnt">${imgsOf(p).length} photos</em>`:""}<b>${esc(p.name)}</b><span>R ${esc(p.price)}</span></button>${admin?`<button class="del" data-a="del" data-id="${p.id}" aria-label="Delete ${esc(p.name)}">×</button>`:""}</div>`;
 }
 function gridHTML(admin){
   const q=query.trim().toLowerCase();
@@ -158,20 +161,20 @@ function sideBody(){
   return p?detailHTML(p):`<div class="big">image</div>`;
 }
 function sideHTML(admin){
-  if(admin)return `<h3>Upload products</h3><div class="panelbox">${formHTML()}</div>`;
-  return `<h3>Products</h3><div id="sbody">${sideBody()}</div>`;
+  if(admin)return `<h2>Upload products</h2><div class="panelbox">${formHTML()}</div>`;
+  return `<h2>Products</h2><div id="sbody">${sideBody()}</div>`;
 }
 
 function page(route,admin){
   if(route==="login")return `<div class="auth"><div class="panelbox"><button class="x" data-a="home" aria-label="Close">✕</button>
-    <h2 style="font:600 26px Fraunces,Georgia,serif;margin:6px 0 16px">Admin login</h2>
+    <h1 style="font:600 26px Fraunces,Georgia,serif;margin:6px 0 16px">Admin login</h1>
     <input class="f" id="u" type="email" placeholder="Admin email" autocomplete="username"><input class="f" id="pw" type="password" placeholder="Password" autocomplete="current-password">
     <p class="err" id="lerr"></p><button class="btn" data-a="dologin">Login</button></div></div>`;
   if(route==="upload")return `<div class="auth"><div class="panelbox"><button class="x" data-a="products" aria-label="Close">✕</button><div style="margin-top:8px">${formHTML()}</div></div></div>`;
-  if(route==="products")return `<div class="shop"><div class="lhs"><div class="top"><h2>${admin?"Your products":"Welcome"}</h2>
+  if(route==="products")return `<div class="shop"><section class="lhs"><div class="top"><h1>${admin?"Your products":"Welcome"}</h1>
     ${admin?`<button class="pill go mobOnly" data-a="goupload">Upload</button>`:""}</div>
     <input class="f" id="q" placeholder="Search products" value="${esc(query)}" style="display:${showSearch||query?"block":"none"}">
-    <div id="grid">${gridHTML(admin)}</div></div><aside class="side" id="side"><div class="side-in">${sideHTML(admin)}</div></aside></div>`;
+    <div id="grid">${gridHTML(admin)}</div></section><aside class="side" id="side"><div class="side-in">${sideHTML(admin)}</div></aside></div>`;
   return `<section class="landing"><div class="hero"><h1>Hair and skin, cared for.</h1><p>Browse our hair and skin products, then tap Get to order on WhatsApp.</p></div>
     <div class="landing-bottom">${socials()}<button class="explore" data-a="products">Explore products</button></div></section>`;
 }
@@ -185,9 +188,10 @@ async function render(){
   if(r==="products"){try{products=await DB.list()}catch(e){products=[];toast(nice(e))}}
   if(!sel&&products[0])sel=products[0].id;
   locked=false;
+  document.title=TITLES[r]||SEO_TITLE;
   document.body.classList.toggle("home-page",r==="home");
   document.body.classList.toggle("shop-page",r==="products");
-  const pager=`<div class="pager"><button data-a="back" aria-label="Go back">‹ Back</button><button data-a="fwd" aria-label="Go forward">Forward ›</button></div>`;
+  const pager=`<nav class="pager" aria-label="Page history"><button data-a="back" aria-label="Go back">‹ Back</button><button data-a="fwd" aria-label="Go forward">Forward ›</button></nav>`;
   $("#app").innerHTML=`<div class="topbar">${header(admin)}${pager}</div><main>${page(r,admin)}</main>${footer()}${drawer()}`;
   scrollTo(0,0);
 }
